@@ -42,7 +42,7 @@ const Btn = ({
     >
       <span
         className="r-btn-bg"
-        style={{ opacity: opacity, borderRadius: `${borderRadius}` }}
+        style={{ opacity: opacity, borderRadius: `calc(${borderRadius} - 0.5 * ${borderRadius})` }}
       ></span>
       <span
         className="r-btn-text"
