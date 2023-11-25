@@ -9,6 +9,7 @@
         display: block;
       }
       .dropdown-item {
+        cursor: pointer;
         background-color: var(--secondary-color);
         padding: 1rem 1rem 0.5rem 1rem;
         &:last-child{
@@ -18,15 +19,17 @@
         &:first-child{
           border-top-right-radius: 1rem;
         }
+        &:hover button .dropdown-item-text{
+          transform: scale(1.05) translate3d(1,0,0);
+          color: var(--ascent-color);
+        }
         button {
           color: var(--text-color);
           border: none;
-          cursor: pointer;
           background-color: transparent;
           text-align: center;
-          h5:hover{
-              transform: scale(1.05) translate3d(1,0,0);
-              color: var(--ascent-color);
+          .dropdown-item-text{
+            cursor: pointer;
           }
         }
         .dropdown1, .dropdown2, .dropdown3 {
@@ -36,6 +39,31 @@
           left: 100%;
           &.active{
             display: block;
+          }
+          .dropdown-item-sublink {
+            cursor: pointer;
+            background-color: var(--secondary-color);
+            padding: 1rem 1rem 0.5rem 1rem;
+            &:last-child{
+              border-bottom-left-radius: 1rem;
+              border-bottom-right-radius: 1rem;
+            }
+            &:first-child{
+              border-top-right-radius: 1rem;
+            }
+            &:hover button .dropdown-item-sublink-text{
+              transform: scale(1.05) translate3d(1,0,0);
+              color: var(--ascent-color);
+            }
+            button {
+              color: var(--text-color);
+              border: none;
+              background-color: transparent;
+              text-align: center;
+              .dropdown-item-sublink-text{
+                cursor: pointer;
+              }
+            }
           }
         }
       }
@@ -55,7 +83,6 @@
     height: calc($menu-icon-height * var(--multiplier));
     cursor: pointer;
     z-index: 50;
-  
     .line-1,
     .line-2, 
     .line-3 {
@@ -75,9 +102,6 @@
     .line-3 {
       animation: animate-line-3-rev .7s ease-in-out;
     }
-  
-  
-  
     &.active {
       .line-1 {
         animation: animate-line-1 .7s $cubic-bezier-in forwards;
@@ -89,9 +113,7 @@
         animation: animate-line-3 .7s $cubic-bezier-in forwards;
       }
     }
-  
   }
-  
   .no-animation {
       -webkit-animation: none !important;
             animation: none !important; 
