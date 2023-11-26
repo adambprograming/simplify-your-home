@@ -12,6 +12,7 @@ INSTRUCTIONS
     href          target of button onClick (if itsScroll===true, href must be id of target element)
     sublinksId    0 for link and 1/2/3 if link used to be for sublinks (first of it must have value of 1, second value of 2 and third value of 3)
     sublinks      list of sublinks with params same as link (content, itsScroll, href)
+  menuInLine    define if menu can be inline (if there is eneugh space) (default true)
   fontSize      fontSize in px for mobile (it will be * by multiplier for desktop) (default set to 24px for mobile)
   fontFamily    fontFamily (could be like var(--font-primary), if fonts are set in variables) (default set to var(--font-primary))
   borderSize    size of border (default set to 1px)
@@ -19,7 +20,7 @@ INSTRUCTIONS
 
 const Menu = ({
   links,
-  menuInline = true,
+  menuInLine = true,
   borderSize = "0px",
   fontSize = "24px",
   fontFamily = "var(--font-primary)",
@@ -30,28 +31,55 @@ const Menu = ({
   const [activeSubMenu2, setActiveSubMenu2] = useState(false);
   const [activeSubMenu3, setActiveSubMenu3] = useState(false);
   const [widthOfContainer, setWidthOfContainer] = useState(0);
-  const [widthOfLinks, setWidthOfLinks] = useState()
-  const numOfLinks = links.length
+  const [widthOfLinks, setWidthOfLinks] = useState(0);
+  const [canBeInline, setCanBeInline] = useState(false);
+  const numOfLinks = links.length;
   const updateWidthOfContainer = () => {
-    const newWidth = document.querySelector('#article-header .container-left').scrollWidth;
+    const newWidth = document.querySelector(
+      "#article-header .container-left"
+    ).scrollWidth;
     setWidthOfContainer(newWidth);
+  };
+  const updateWidthOfLinks = () => {
+    try {
+      const listOfLinks = document.querySelectorAll(
+        "#nav-inline .menu-inline .inline-item"
+      );
+      const listOfWidths = [];
+      for (let i = 0; i < listOfLinks.length; i++) {
+        const width = listOfLinks[i].scrollWidth;
+        listOfWidths.push(width);
+      }
+      if (listOfWidths[0] == undefined) {
+        const listOfLinks = document.querySelectorAll(
+          "#nav-dropdown .menu-dropdown .dropdown-item"
+        );
+        for (let i = 0; i < listOfLinks.length; i++) {
+          const width = listOfLinks[i].scrollWidth;
+          listOfWidths.push(width);
+        }
+      }
+      const newWidth = Math.max(...listOfWidths);
+      setWidthOfLinks(newWidth * numOfLinks);
+    } catch (error) {
+      console.log(error);
+    }
   };
   useEffect(() => {
     window.addEventListener("resize", updateWidthOfContainer);
     updateWidthOfContainer();
-  }, []);
-  const updateWidthOfLinks = () => {
-    try {
-      const newWidth = document.querySelector('#nav-dropdown .menu-dropdown .dropdown-item').scrollWidth;
-      setWidthOfLinks(newWidth * numOfLinks);
-    } catch (error) {
-    }
-  }
-  useEffect(() => {
     window.addEventListener("resize", updateWidthOfLinks);
-    updateWidthOfLinks()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    updateWidthOfLinks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (widthOfContainer > widthOfLinks && menuInLine) {
+      setCanBeInline(true);
+    } else {
+      setCanBeInline(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [widthOfContainer, widthOfLinks]);
   const handleMenuClick = () => {
     document
       .getElementsByClassName("menu-icon")
@@ -77,7 +105,7 @@ const Menu = ({
   };
   const handleSubMenu = (index) => {
     if (index === 1) {
-      if (activeMenu === false && activeSubMenu1 === false && document.querySelector('#nav-dropdown .menu-icon')) {
+      if (activeMenu === false && activeSubMenu1 === false) {
         handleMenuClick();
       }
       setActiveSubMenu1(!activeSubMenu1);
@@ -107,200 +135,140 @@ const Menu = ({
     setActiveSubMenu2(false);
     setActiveSubMenu3(false);
   };
-  // console.log(widthOfContainer);
-  // console.log(widthOfLinks);
-  // console.log(paddingOfEachLinkBlock.split(' ')[3]);
-  if ((widthOfContainer > widthOfLinks) && menuInline) {
-    return(
-      <nav id="nav-inline">
-        <ul className='menu-inline'>
-          {links.map((link, index) => (
-            <li
-              style={{
-                borderBottom: `${borderSize} solid var(--black-10)`,
-                padding: `${paddingOfEachLinkBlock}`,
-              }}
-              className={`inline-item ${
-                (link.sublinksId === 1 && activeSubMenu1) === true ||
-                (link.sublinksId === 2 && activeSubMenu2) === true ||
-                (link.sublinksId === 3 && activeSubMenu3) === true
-                  ? "active"
-                  : ""
-                }`}
-              key={index}
-              onClick={() => {
-                link.sublinksId !== 0
-                  ? handleSubMenu(link.sublinksId)
-                  : link.itsScroll
-                  ? document
-                      .getElementById(`#${link.href}`)
-                      .scrollIntoView({ behavior: "smooth" }) &&
-                    handleDisactiveMenu()
-                  : (window.location.href = `${link.href}`);
-              }}
-            >
-              <span
-                className="inline-item-text"
-                style={{
-                  fontFamily: fontFamily,
-                  fontSize: `calc(${fontSize} * var(--multiplier))`,
-                }}
-              >
-                {link.content}
-              </span>
-
-
-
-              {link.sublinksId > 0 && (
-                <ul
-                  className={`submenu-inline${link.sublinksId} ${
-                    (link.sublinksId === 1 && activeSubMenu1) === true ||
-                    (link.sublinksId === 2 && activeSubMenu2) === true ||
-                    (link.sublinksId === 3 && activeSubMenu3) === true
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  {link.sublinks.map((sublink, index) => (
-                    <li
-                      style={{
-                        borderBottom: `${borderSize} solid var(--black-10)`,
-                        padding: `${paddingOfEachLinkBlock}`
-                        // padding: `${paddingOfEachLinkBlock.split(' ')[0]} 0 ${paddingOfEachLinkBlock.split(' ')[2]} 0`,
-                      }}
-                      className="inline-item-sublink"
-                      key={index}
-                      onClick={() => {
-                        link.itsScroll
-                          ? document
-                              .getElementById(`#${link.href}`)
-                              .scrollIntoView({ behavior: "smooth" }) &&
-                            handleDisactiveMenu()
-                          : (window.location.href = `${link.href}`);
-                      }}
-                    >
-                      <span
-                        className="inline-item-sublink-text"
-                        style={{
-                          fontFamily: fontFamily,
-                          fontSize: `calc(${fontSize} * var(--multiplier))`,
-                        }}
-                      >
-                        {sublink.content}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-
-
-            </li>
-          ))}
-        </ul>
-      </nav>
-    )
-  } else {
-    return (
-      <nav id="nav-dropdown">
-        <div
-          className="menu-icon"
-          onClick={() => {
-            handleMenuClick();
-          }}
-        >
-          <div className="line-1 no-animation"></div>
-          <div className="line-2 no-animation"></div>
-          <div className="line-3 no-animation"></div>
-        </div>
-        <ul className={`menu-dropdown ${activeMenu === true ? "active" : ""}`}>
-          {links.map((link, index) => (
-            <li
-              style={{
-                border: `${borderSize} solid var(--black-10)`,
-                padding: `${paddingOfEachLinkBlock}`,
-              }}
-              className={`dropdown-item ${
-                (link.sublinksId === 1 && activeSubMenu1) === true ||
-                (link.sublinksId === 2 && activeSubMenu2) === true ||
-                (link.sublinksId === 3 && activeSubMenu3) === true
-                  ? "active"
-                  : ""
+  return (
+    <nav id={`${canBeInline ? "nav-inline" : "nav-dropdown"}`}>
+      <div
+        className="menu-icon"
+        style={{ display: `${canBeInline ? "none" : "block"}` }}
+        onClick={() => {
+          handleMenuClick();
+        }}
+      >
+        <div className="line-1 no-animation"></div>
+        <div className="line-2 no-animation"></div>
+        <div className="line-3 no-animation"></div>
+      </div>
+      <ul
+        className={`${
+          canBeInline
+            ? "menu-inline"
+            : `menu-dropdown ${activeMenu === true ? "active" : ""}`
+        }`}
+      >
+        {links.map((link, index) => (
+          <li
+            style={{
+              padding: `${paddingOfEachLinkBlock}`,
+              ...(canBeInline
+                ? {
+                    borderBottom: `${borderSize} solid var(--black-10)`,
+                  }
+                : {
+                    border: `${borderSize} solid var(--black-10)`,
+                  }),
+            }}
+            className={`${canBeInline ? "inline-item" : "dropdown-item"} ${
+              (link.sublinksId === 1 && activeSubMenu1) === true ||
+              (link.sublinksId === 2 && activeSubMenu2) === true ||
+              (link.sublinksId === 3 && activeSubMenu3) === true
+                ? "active"
+                : ""
+            }`}
+            key={index}
+            onClick={() => {
+              link.sublinksId !== 0
+                ? handleSubMenu(link.sublinksId)
+                : link.itsScroll
+                ? document
+                    .getElementById(`#${link.href}`)
+                    .scrollIntoView({ behavior: "smooth" }) &&
+                  handleDisactiveMenu()
+                : (window.location.href = `${link.href}`);
+            }}
+          >
+            <span
+              className={`${
+                canBeInline ? "inline-item-text" : "dropdown-item-text"
               }`}
-              key={index}
-              onClick={() => {
-                link.sublinksId !== 0
-                  ? handleSubMenu(link.sublinksId)
-                  : link.itsScroll
-                  ? document
-                      .getElementById(`#${link.href}`)
-                      .scrollIntoView({ behavior: "smooth" }) &&
-                    handleDisactiveMenu()
-                  : (window.location.href = `${link.href}`);
+              style={{
+                fontFamily: fontFamily,
+                fontSize: `calc(${fontSize} * var(--multiplier))`,
               }}
             >
-              <span
-                className="dropdown-item-text"
-                style={{
-                  fontFamily: fontFamily,
-                  fontSize: `calc(${fontSize} * var(--multiplier))`,
-                }}
+              {link.content}
+            </span>
+            {link.sublinksId > 0 && (
+              <ul
+                style={
+                  canBeInline
+                    ? {}
+                    : {
+                        top: `calc(5px + ${index} * (${fontSize} * var(--multiplier) + ${
+                          paddingOfEachLinkBlock.split(" ")[0]
+                        } + ${
+                          paddingOfEachLinkBlock.split(" ")[2]
+                        } + ${borderSize} * 2))`,
+                      }
+                }
+                className={`${
+                  canBeInline ? "submenu-inline" : "submenu-dropdown"
+                }${link.sublinksId} ${
+                  (link.sublinksId === 1 && activeSubMenu1) === true ||
+                  (link.sublinksId === 2 && activeSubMenu2) === true ||
+                  (link.sublinksId === 3 && activeSubMenu3) === true
+                    ? "active"
+                    : ""
+                }`}
               >
-                {link.content}
-              </span>
-              {link.sublinksId > 0 && (
-                <ul
-                  style={{
-                    top: `calc(5px + ${index} * (${fontSize} * var(--multiplier) + ${
-                      paddingOfEachLinkBlock.split(" ")[0]
-                    } + ${
-                      paddingOfEachLinkBlock.split(" ")[2]
-                    } + ${borderSize} * 2))`,
-                  }}
-                  className={`submenu-dropdown${link.sublinksId} ${
-                    (link.sublinksId === 1 && activeSubMenu1) === true ||
-                    (link.sublinksId === 2 && activeSubMenu2) === true ||
-                    (link.sublinksId === 3 && activeSubMenu3) === true
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  {link.sublinks.map((sublink, index) => (
-                    <li
+                {link.sublinks.map((sublink, index) => (
+                  <li
+                    style={{
+                      padding: `${paddingOfEachLinkBlock}`,
+                      ...(canBeInline
+                        ? {
+                            borderBottom: `${borderSize} solid var(--black-10)`,
+                          }
+                        : {
+                            border: `${borderSize} solid var(--black-10)`,
+                          }),
+                    }}
+                    className={`${
+                      canBeInline
+                        ? "inline-item-sublink"
+                        : "dropdown-item-sublink"
+                    }`}
+                    key={index}
+                    onClick={() => {
+                      link.itsScroll
+                        ? document
+                            .getElementById(`#${link.href}`)
+                            .scrollIntoView({ behavior: "smooth" }) &&
+                          handleDisactiveMenu()
+                        : (window.location.href = `${link.href}`);
+                    }}
+                  >
+                    <span
+                      className={`${
+                        canBeInline
+                          ? "inline-item-sublink-text"
+                          : "dropdown-item-sublink-text"
+                      }`}
                       style={{
-                        border: `${borderSize} solid var(--black-10)`,
-                        padding: `${paddingOfEachLinkBlock}`,
-                      }}
-                      className="dropdown-item-sublink"
-                      key={index}
-                      onClick={() => {
-                        link.itsScroll
-                          ? document
-                              .getElementById(`#${link.href}`)
-                              .scrollIntoView({ behavior: "smooth" }) &&
-                            handleDisactiveMenu()
-                          : (window.location.href = `${link.href}`);
+                        fontFamily: fontFamily,
+                        fontSize: `calc(${fontSize} * var(--multiplier))`,
                       }}
                     >
-                      <span
-                        className="dropdown-item-sublink-text"
-                        style={{
-                          fontFamily: fontFamily,
-                          fontSize: `calc(${fontSize} * var(--multiplier))`,
-                        }}
-                      >
-                        {sublink.content}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))}
-        </ul>
-      </nav>
-    );
-  }
+                      {sublink.content}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
 };
 
 export default Menu;
