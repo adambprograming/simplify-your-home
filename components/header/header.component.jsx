@@ -8,7 +8,7 @@ import Image from "next/image";
 // Context
 
 // Componenets
-import MenuDropdown from "../r-menu-dropdown/menu-dropdown.component";
+import Menu from "../r-menu/menu.component";
 
 const Header = () => {
   const menuDropDown = [
@@ -55,9 +55,9 @@ const Header = () => {
     window.location.href = '/'
   }
   return (
-    <header className="article-header">
+    <header id="article-header">
       <div className="container-left">
-        <MenuDropdown links={menuDropDown} fontSize="24px" fontFamily="var(--font-primary), sans-serif" borderSize="1px" />
+        <Menu links={menuDropDown} fontSize="24px" fontFamily="var(--font-primary), sans-serif" borderSize="1px" />
       </div>
       <div className="container-logo">
         <Image className="logo" src={Logo} alt="logo" onClick={handleLogoClick} />
