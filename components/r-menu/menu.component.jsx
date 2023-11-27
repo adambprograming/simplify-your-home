@@ -26,22 +26,31 @@ const Menu = ({
   fontFamily = "var(--font-primary)",
   paddingOfEachLinkBlock = "10px 10px 5px 10px",
 }) => {
+  // if menu is dropdown, this state have value if its active or not
   const [activeMenu, setActiveMenu] = useState(false);
+  // submenus active or not
   const [activeSubMenu1, setActiveSubMenu1] = useState(false);
   const [activeSubMenu2, setActiveSubMenu2] = useState(false);
   const [activeSubMenu3, setActiveSubMenu3] = useState(false);
+  // width of container for left side of header, where should be only menu
   const [widthOfContainer, setWidthOfContainer] = useState(0);
+  // width of all links in row
   const [widthOfLinks, setWidthOfLinks] = useState(0);
+  // menu will be dropdown (false) or inline (true)
   const [canBeInline, setCanBeInline] = useState(false);
+  // number of links
   const numOfLinks = links.length;
+  // update state widthOfContainer
   const updateWidthOfContainer = () => {
     const newWidth = document.querySelector(
       "#article-header .container-left"
     ).scrollWidth;
     setWidthOfContainer(newWidth);
   };
+  // update state widthOfLinks
   const updateWidthOfLinks = () => {
     try {
+      // find all inline items
       const listOfLinks = document.querySelectorAll(
         "#nav-inline .menu-inline .inline-item"
       );
@@ -50,6 +59,9 @@ const Menu = ({
         const width = listOfLinks[i].scrollWidth;
         listOfWidths.push(width);
       }
+      /* if listOfWidths doesnt have any values, its bcs of menu isn't inline, 
+      but dropdown, so its needs to do it again but insted of find all inline items, 
+      it will find all dropdown items */
       if (listOfWidths[0] == undefined) {
         const listOfLinks = document.querySelectorAll(
           "#nav-dropdown .menu-dropdown .dropdown-item"
@@ -59,12 +71,12 @@ const Menu = ({
           listOfWidths.push(width);
         }
       }
+      // choose max value
       const newWidth = Math.max(...listOfWidths);
       setWidthOfLinks(newWidth * numOfLinks);
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
+  // on initial load make listeners for resize that will call both func; updateWidthOfContainer & updateWidthOfLinks
   useEffect(() => {
     window.addEventListener("resize", updateWidthOfContainer);
     updateWidthOfContainer();
@@ -72,6 +84,7 @@ const Menu = ({
     updateWidthOfLinks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // if widthOfContainer or widthOfLinks change, setCanBeInline to equal value
   useEffect(() => {
     if (widthOfContainer > widthOfLinks && menuInLine) {
       setCanBeInline(true);
@@ -80,6 +93,9 @@ const Menu = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [widthOfContainer, widthOfLinks]);
+  /* animation of menu icon & if activeMenu state is active, set state of menu
+  and all submenus to false (func handleDisactiveMenu),
+  if activeMenu state is false then set it to true */
   const handleMenuClick = () => {
     document
       .getElementsByClassName("menu-icon")
@@ -103,8 +119,10 @@ const Menu = ({
       setActiveMenu(true);
     }
   };
+  // handleSubMenu click
   const handleSubMenu = (index) => {
     if (index === 1) {
+      // if both menu and submenu isn't active and user click on submenu, active menu will be actived too
       if (activeMenu === false && activeSubMenu1 === false) {
         handleMenuClick();
       }
@@ -126,15 +144,24 @@ const Menu = ({
       setActiveSubMenu1(false);
       setActiveSubMenu2(false);
     } else {
+      /* if this happen, create more submenu(state, add it to handleDisactiveMenu,
+      add it to handleSubMenu, add it to link and sublik classname property)*/
       console.error("Need more subMenus!");
     }
   };
+  // set all menu & submenu states to false
   const handleDisactiveMenu = () => {
     setActiveMenu(false);
     setActiveSubMenu1(false);
     setActiveSubMenu2(false);
     setActiveSubMenu3(false);
   };
+  /* 
+  canBeInline make everything suitable for both inline & dropdown options
+  all submenu (ul) are generated inside of item (li) after text
+  there are three types of onClick interactions (target another page, target id at actual page, dropdown submenu)
+  */
+
   return (
     <nav id={`${canBeInline ? "nav-inline" : "nav-dropdown"}`}>
       <div
