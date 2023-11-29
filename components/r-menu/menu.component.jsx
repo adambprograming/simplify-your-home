@@ -224,42 +224,63 @@ const Menu = ({
                 : ""
             }`}
             key={index}
-            onClick={() => {
-              link.sublinksId !== 0
+          >
+            {link.sublinksId === 0 && link.itsScroll === false ? (
+              <Link
+              className={`${
+                canBeInline
+                  ? "inline-item-link-element"
+                  : "dropdown-item-link-element"
+              }`}
+              onClick={() => {handleDisactiveMenu()}}
+              href={link.href}
+              style={{
+                width: `${
+                  canBeInline
+                    ? listOfLinksWidth[index]
+                    : widthOfAllLinks / numOfLinks
+                }px`,
+                minWidth: "100%",
+                height: `${heightOfLink}px`,
+                left: `${borderSize}`,
+                top: `${
+                  canBeInline
+                    ? "0px"
+                    : `calc(${
+                        heightOfLink * index
+                      }px + ${borderSize} + ${borderSize} * 2 * ${index} + 5px)`
+                }`,
+              }}
+              ></Link>
+            ) : (
+              <span className={`${
+                canBeInline
+                  ? "inline-item-link-element"
+                  : "dropdown-item-link-element"
+              }`} style={{
+                width: `${
+                  canBeInline
+                    ? listOfLinksWidth[index]
+                    : widthOfAllLinks / numOfLinks
+                }px`,
+                minWidth: "100%",
+                height: `${heightOfLink}px`,
+                left: `${borderSize}`,
+                top: `${
+                  canBeInline
+                    ? "0px"
+                    : `calc(${
+                        heightOfLink * index
+                      }px + ${borderSize} + ${borderSize} * 2 * ${index} + 5px)`
+                }`,
+              }} onClick={() => {link.sublinksId !== 0
                 ? handleSubMenu(link.sublinksId)
-                : (link.itsScroll &&
-                    document
+                : (document
                       .getElementById(`${link.href}`)
                       .scrollIntoView({ behavior: "smooth" })) &
-                  handleDisactiveMenu();
-            }}
-          >
-            {link.sublinksId === 0 && link.itsScroll === false && (
-              <Link
-                className={`${
-                  canBeInline
-                    ? "inline-item-link-element"
-                    : "dropdown-item-link-element"
-                }`}
-                href={link.href}
-                style={{
-                  width: `${
-                    canBeInline
-                      ? listOfLinksWidth[index]
-                      : widthOfAllLinks / numOfLinks
-                  }px`,
-                  minWidth: "100%",
-                  height: `${heightOfLink}px`,
-                  left: `${borderSize}`,
-                  top: `${
-                    canBeInline
-                      ? "0px"
-                      : `calc(${
-                          heightOfLink * index
-                        }px + ${borderSize} + ${borderSize} * 2 * ${index} + 5px)`
-                  }`,
-                }}
-              ></Link>
+                  handleDisactiveMenu();}}>
+
+              </span>
             )}
             <span
               className={`${
@@ -314,15 +335,8 @@ const Menu = ({
                         : "dropdown-item-sublink"
                     }`}
                     key={index}
-                    onClick={() => {
-                      (sublink.itsScroll &&
-                        document
-                          .getElementById(`${sublink.href}`)
-                          .scrollIntoView({ behavior: "smooth" })) &
-                        handleDisactiveMenu();
-                    }}
                   >
-                    {sublink.itsScroll === false && (
+                    {sublink.itsScroll === false ? (
                       <Link
                         className={`${
                           canBeInline
@@ -330,11 +344,26 @@ const Menu = ({
                             : "dropdown-item-sublink-element"
                         }`}
                         href={sublink.href}
+                        onClick={() => {handleDisactiveMenu()}}
                         style={{
                           minWidth: "100%",
                           height: `${heightOfLink}px`,
                         }}
                       ></Link>
+                    ) : (
+                      <span                        className={`${
+                        canBeInline
+                          ? "inline-item-sublink-element"
+                          : "dropdown-item-sublink-element"
+                      }`} style={{
+                        minWidth: "100%",
+                        height: `${heightOfLink}px`,
+                      }} onClick={() => {document
+                        .getElementById(`${sublink.href}`)
+                        .scrollIntoView({ behavior: "smooth" });
+                      handleDisactiveMenu()}}>
+
+                      </span>
                     )}
                     <span
                       className={`${
