@@ -5,6 +5,7 @@ import "./header.styles.scss";
 import Logo from "../../public/logo.svg";
 // React/Next Functions
 import Image from "next/image";
+import Link from "next/link"
 // Context
 
 // Componenets
@@ -48,42 +49,16 @@ const Header = () => {
           "href": "/shop?cat=livingroom",
         }
       ]
-    },
-    {
-      "content": 'Contact',
-      "itsScroll": false,
-      "href": "",
-      "sublinksId": 2,
-      "sublinks": [
-        {
-          "content": "Instagram",
-          "itsScroll": false,
-          "href": "/shop?cat=kitchen",
-        },
-        {
-          "content": "Facebook",
-          "itsScroll": false,
-          "href": "/shop?cat=bathroom",
-        },
-        {
-          "content": "Twitter",
-          "itsScroll": false,
-          "href": "/shop?cat=livingroom",
-        }
-      ]
     }
   ]
 
-  const handleLogoClick = () => {
-    window.location.href = '/'
-  }
   return (
     <header id="article-header">
       <div className="container-left">
         <Menu links={menuDropDown} menuInLine={true} fontSize="24px" fontFamily="var(--font-primary), sans-serif" borderSize="1px" />
       </div>
       <div className="container-logo">
-        <Image className="logo" src={Logo} alt="logo" onClick={handleLogoClick} />
+        <Link href='/' ><Image className="logo" src={Logo} alt="logo" /></Link>
       </div>
       <div className="container-right">
       </div>
