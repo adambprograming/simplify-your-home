@@ -19,6 +19,10 @@
       cursor: pointer;
       text-align: center;
       position: relative;
+      .inline-item-link-element{
+        position: absolute;
+        display: block;
+      }
       &.active .inline-item-text {
         color: var(--ascent-color);
       }
@@ -38,6 +42,13 @@
         .inline-item-sublink {
           cursor: pointer;
           text-align: center;
+          position: relative;
+          .inline-item-sublink-element{
+            position: absolute;
+            display: block;
+            left: 0;
+            top: 0;
+          }
         }
       }
     }
@@ -60,6 +71,10 @@
       cursor: pointer;
       background-color: var(--secondary-color);
       text-align: center;
+      .dropdown-item-link-element{
+        position: absolute;
+        display: block;
+      }
       &.active .dropdown-item-text {
         color: var(--ascent-color);
       }
@@ -85,12 +100,19 @@
           cursor: pointer;
           background-color: var(--secondary-color);
           text-align: center;
+          position: relative;
           &:last-child {
             border-bottom-left-radius: 1rem;
             border-bottom-right-radius: 1rem;
           }
           &:first-child {
             border-top-right-radius: 1rem;
+          }
+          .dropdown-item-sublink-element{
+            position: absolute;
+            display: block;
+            left: 0;
+            top: 0;
           }
         }
       }

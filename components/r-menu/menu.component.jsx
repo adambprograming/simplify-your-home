@@ -2,20 +2,21 @@
 // Styles
 import "./menu.styles.scss";
 // React Functions
+import Link from "next/link";
 import { useState, useEffect } from "react";
 
 /*
-INSTRUCTIONS 
-  links         json with data
-    content       text of button
-    itsScroll     false(default, link to another page)/true(link to something on page)
-    href          target of button onClick (if itsScroll===true, href must be id of target element)
-    sublinksId    0 for link and 1/2/3 if link used to be for sublinks (first of it must have value of 1, second value of 2 and third value of 3)
-    sublinks      list of sublinks with params same as link (content, itsScroll, href)
-  menuInLine    define if menu can be inline (if there is eneugh space) (default true)
-  fontSize      fontSize in px for mobile (it will be * by multiplier for desktop) (default set to 24px for mobile)
-  fontFamily    fontFamily (could be like var(--font-primary), if fonts are set in variables) (default set to var(--font-primary))
-  borderSize    size of border (default set to 1px)
+INSTRUCTIONS (Use itsScroll to tru only on Onepages - otherwise it will cause problem, bcs on the another page isnt element with that ID)
+  links           json with data
+    content         text of button (if there is need to make content of inline-item wider, because of submenu-item, use ‎ to make space)
+    itsScroll       false(default, link to another page)/true(link to something on page)
+    href            target of button onClick (if itsScroll===true, href must be id of target element)
+    sublinksId      0 for link and 1/2/3 if link used to be for sublinks (first of it must have value of 1, second value of 2 and third value of 3)
+    sublinks        list of sublinks with params same as link (content, itsScroll, href)
+  menuInLine      define if menu can be inline (if there is eneugh space) (default true)
+  fontSize        fontSize in px for mobile (it will be * by multiplier for desktop) (default set to 24px for mobile)
+  fontFamily      fontFamily (could be like var(--font-primary), if fonts are set in variables) (default set to var(--font-primary))
+  borderSize      size of border (default set to 1px)
 */
 
 const Menu = ({
@@ -34,8 +35,12 @@ const Menu = ({
   const [activeSubMenu3, setActiveSubMenu3] = useState(false);
   // width of container for left side of header, where should be only menu
   const [widthOfContainer, setWidthOfContainer] = useState(0);
-  // width of all links in row
-  const [widthOfLinks, setWidthOfLinks] = useState(0);
+  // list of each link width (of menu)
+  const [listOfLinksWidth, setListOfLinksWidth] = useState([]);
+  // width of all links in row (of menu)
+  const [widthOfAllLinks, setWidthOfAllLinks] = useState(0);
+  // height of one link
+  const [heightOfLink, setHeightOfLink] = useState(0);
   // menu will be dropdown (false) or inline (true)
   const [canBeInline, setCanBeInline] = useState(false);
   // number of links
@@ -47,52 +52,62 @@ const Menu = ({
     ).scrollWidth;
     setWidthOfContainer(newWidth);
   };
-  // update state widthOfLinks
-  const updateWidthOfLinks = () => {
+  // update state widthOfAllLinks
+  const updateSizeOfLinks = () => {
     try {
+      const listOfWidths = [];
+      const listOfHeights = [];
       // find all inline items
-      const listOfLinks = document.querySelectorAll(
+      const listOfLinksInline = document.querySelectorAll(
         "#nav-inline .menu-inline .inline-item"
       );
-      const listOfWidths = [];
-      for (let i = 0; i < listOfLinks.length; i++) {
-        const width = listOfLinks[i].scrollWidth;
+      for (let i = 0; i < listOfLinksInline.length; i++) {
+        const width = listOfLinksInline[i].clientWidth;
+        const height = listOfLinksInline[i].clientHeight;
         listOfWidths.push(width);
+        listOfHeights.push(height);
+      }
+      if (listOfWidths[0] !== undefined) {
+        setListOfLinksWidth(listOfWidths);
       }
       /* if listOfWidths doesnt have any values, its bcs of menu isn't inline, 
       but dropdown, so its needs to do it again but insted of find all inline items, 
       it will find all dropdown items */
-      if (listOfWidths[0] == undefined) {
-        const listOfLinks = document.querySelectorAll(
+      if (listOfWidths[0] == undefined || listOfHeights[0] == undefined) {
+        const listOfLinksDropdown = document.querySelectorAll(
           "#nav-dropdown .menu-dropdown .dropdown-item"
         );
-        for (let i = 0; i < listOfLinks.length; i++) {
-          const width = listOfLinks[i].scrollWidth;
+        for (let i = 0; i < listOfLinksDropdown.length; i++) {
+          const width = listOfLinksDropdown[i].clientWidth;
+          const height = listOfLinksDropdown[i].clientHeight;
           listOfWidths.push(width);
+          listOfHeights.push(height);
         }
       }
       // choose max value
       const newWidth = Math.max(...listOfWidths);
-      setWidthOfLinks(newWidth * numOfLinks);
+      const newHeight = Math.max(...listOfHeights);
+      setWidthOfAllLinks(newWidth * numOfLinks);
+      setHeightOfLink(newHeight);
     } catch (error) {}
   };
-  // on initial load make listeners for resize that will call both func; updateWidthOfContainer & updateWidthOfLinks
+  // on initial load make listeners for resize that will call both func; updateWidthOfContainer & updateSizeOfLinks
   useEffect(() => {
     window.addEventListener("resize", updateWidthOfContainer);
     updateWidthOfContainer();
-    window.addEventListener("resize", updateWidthOfLinks);
-    updateWidthOfLinks();
+    window.addEventListener("resize", updateSizeOfLinks);
+    updateSizeOfLinks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  // if widthOfContainer or widthOfLinks change, setCanBeInline to equal value
+  // if widthOfContainer or widthOfAllLinks change, setCanBeInline to equal value
   useEffect(() => {
-    if (widthOfContainer > widthOfLinks && menuInLine) {
+    if (widthOfContainer >= widthOfAllLinks && menuInLine) {
       setCanBeInline(true);
     } else {
       setCanBeInline(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [widthOfContainer, widthOfLinks]);
+  }, [widthOfContainer, widthOfAllLinks]);
   /* animation of menu icon & if activeMenu state is active, set state of menu
   and all submenus to false (func handleDisactiveMenu),
   if activeMenu state is false then set it to true */
@@ -114,7 +129,10 @@ const Menu = ({
       .item(0)
       .classList.remove("no-animation");
     if (activeMenu === true) {
-      handleDisactiveMenu();
+      setActiveMenu(false);
+      setActiveSubMenu1(false);
+      setActiveSubMenu2(false);
+      setActiveSubMenu3(false);
     } else {
       setActiveMenu(true);
     }
@@ -149,8 +167,12 @@ const Menu = ({
       console.error("Need more subMenus!");
     }
   };
-  // set all menu & submenu states to false
+  // set all menu & submenu states to false and deactive menu icon
   const handleDisactiveMenu = () => {
+    document
+      .getElementsByClassName("menu-icon")
+      .item(0)
+      .classList.remove("active");
     setActiveMenu(false);
     setActiveSubMenu1(false);
     setActiveSubMenu2(false);
@@ -195,9 +217,9 @@ const Menu = ({
                   }),
             }}
             className={`${canBeInline ? "inline-item" : "dropdown-item"} ${
-              (link.sublinksId === 1 && activeSubMenu1) === true ||
-              (link.sublinksId === 2 && activeSubMenu2) === true ||
-              (link.sublinksId === 3 && activeSubMenu3) === true
+              (link.sublinksId === 1 && activeSubMenu1) ||
+              (link.sublinksId === 2 && activeSubMenu2) ||
+              (link.sublinksId === 3 && activeSubMenu3)
                 ? "active"
                 : ""
             }`}
@@ -205,14 +227,40 @@ const Menu = ({
             onClick={() => {
               link.sublinksId !== 0
                 ? handleSubMenu(link.sublinksId)
-                : link.itsScroll
-                ? document
-                    .getElementById(`#${link.href}`)
-                    .scrollIntoView({ behavior: "smooth" }) &&
-                  handleDisactiveMenu()
-                : (window.location.href = `${link.href}`);
+                : (link.itsScroll &&
+                    document
+                      .getElementById(`${link.href}`)
+                      .scrollIntoView({ behavior: "smooth" })) &
+                  handleDisactiveMenu();
             }}
           >
+            {link.sublinksId === 0 && link.itsScroll === false && (
+              <Link
+                className={`${
+                  canBeInline
+                    ? "inline-item-link-element"
+                    : "dropdown-item-link-element"
+                }`}
+                href={link.href}
+                style={{
+                  width: `${
+                    canBeInline
+                      ? listOfLinksWidth[index]
+                      : widthOfAllLinks / numOfLinks
+                  }px`,
+                  minWidth: "100%",
+                  height: `${heightOfLink}px`,
+                  left: `${borderSize}`,
+                  top: `${
+                    canBeInline
+                      ? "0px"
+                      : `calc(${
+                          heightOfLink * index
+                        }px + ${borderSize} + ${borderSize} * 2 * ${index} + 5px)`
+                  }`,
+                }}
+              ></Link>
+            )}
             <span
               className={`${
                 canBeInline ? "inline-item-text" : "dropdown-item-text"
@@ -224,6 +272,7 @@ const Menu = ({
             >
               {link.content}
             </span>
+
             {link.sublinksId > 0 && (
               <ul
                 style={
@@ -240,9 +289,9 @@ const Menu = ({
                 className={`${
                   canBeInline ? "submenu-inline" : "submenu-dropdown"
                 }${link.sublinksId} ${
-                  (link.sublinksId === 1 && activeSubMenu1) === true ||
-                  (link.sublinksId === 2 && activeSubMenu2) === true ||
-                  (link.sublinksId === 3 && activeSubMenu3) === true
+                  (link.sublinksId === 1 && activeSubMenu1) ||
+                  (link.sublinksId === 2 && activeSubMenu2) ||
+                  (link.sublinksId === 3 && activeSubMenu3)
                     ? "active"
                     : ""
                 }`}
@@ -266,14 +315,27 @@ const Menu = ({
                     }`}
                     key={index}
                     onClick={() => {
-                      link.itsScroll
-                        ? document
-                            .getElementById(`#${link.href}`)
-                            .scrollIntoView({ behavior: "smooth" }) &&
-                          handleDisactiveMenu()
-                        : (window.location.href = `${link.href}`);
+                      (sublink.itsScroll &&
+                        document
+                          .getElementById(`${sublink.href}`)
+                          .scrollIntoView({ behavior: "smooth" })) &
+                        handleDisactiveMenu();
                     }}
                   >
+                    {sublink.itsScroll === false && (
+                      <Link
+                        className={`${
+                          canBeInline
+                            ? "inline-item-sublink-element"
+                            : "dropdown-item-sublink-element"
+                        }`}
+                        href={sublink.href}
+                        style={{
+                          minWidth: "100%",
+                          height: `${heightOfLink}px`,
+                        }}
+                      ></Link>
+                    )}
                     <span
                       className={`${
                         canBeInline
