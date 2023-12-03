@@ -4,7 +4,6 @@ import "./menu.styles.scss";
 // React Functions
 import Link from "next/link";
 import { useState, useEffect } from "react";
-
 /*
 INSTRUCTIONS (Use itsScroll to tru only on Onepages - otherwise it will cause problem, bcs on the another page isnt element with that ID)
   links           json with data
@@ -18,7 +17,6 @@ INSTRUCTIONS (Use itsScroll to tru only on Onepages - otherwise it will cause pr
   fontFamily      fontFamily (could be like var(--font-primary), if fonts are set in variables) (default set to var(--font-primary))
   borderSize      size of border (default set to 1px)
 */
-
 const Menu = ({
   links,
   menuInLine = true,
@@ -35,22 +33,20 @@ const Menu = ({
   const [activeSubMenu3, setActiveSubMenu3] = useState(false);
   // width of container for left side of header, where should be only menu
   const [widthOfContainer, setWidthOfContainer] = useState(0);
-  // list of each link width (of menu)
-  const [listOfLinksWidth, setListOfLinksWidth] = useState([]);
   // width of all links in row (of menu)
   const [widthOfAllLinks, setWidthOfAllLinks] = useState(0);
   // height of one link
   const [heightOfLink, setHeightOfLink] = useState(0);
   // menu will be dropdown (false) or inline (true)
-  const [canBeInline, setCanBeInline] = useState(false);
-  // number of links
-  const numOfLinks = links.length;
+  const [canBeInline, setCanBeInline] = useState(true);
   // update state widthOfContainer
   const updateWidthOfContainer = () => {
-    const newWidth = document.querySelector(
-      "#article-header .container-left"
-    ).scrollWidth;
-    setWidthOfContainer(newWidth);
+    try {
+      const newWidth = document.querySelector(
+        "#article-header .container-left"
+      ).scrollWidth;
+      setWidthOfContainer(newWidth);
+    } catch (error) {}
   };
   // update state widthOfAllLinks
   const updateSizeOfLinks = () => {
@@ -67,36 +63,21 @@ const Menu = ({
         listOfWidths.push(width);
         listOfHeights.push(height);
       }
-      if (listOfWidths[0] !== undefined) {
-        setListOfLinksWidth(listOfWidths);
+      if (typeof listOfWidths[0] !== 'undefined') {
+        const newWidth = listOfWidths.reduce((previousValue, curentValue) => {return previousValue + curentValue}, listOfWidths.length * 10);
+        const newHeight = Math.max(...listOfHeights);
+        setWidthOfAllLinks(newWidth);
+        setHeightOfLink(newHeight);
       }
-      /* if listOfWidths doesnt have any values, its bcs of menu isn't inline, 
-      but dropdown, so its needs to do it again but insted of find all inline items, 
-      it will find all dropdown items */
-      if (listOfWidths[0] == undefined || listOfHeights[0] == undefined) {
-        const listOfLinksDropdown = document.querySelectorAll(
-          "#nav-dropdown .menu-dropdown .dropdown-item"
-        );
-        for (let i = 0; i < listOfLinksDropdown.length; i++) {
-          const width = listOfLinksDropdown[i].clientWidth;
-          const height = listOfLinksDropdown[i].clientHeight;
-          listOfWidths.push(width);
-          listOfHeights.push(height);
-        }
-      }
-      // choose max value
-      const newWidth = Math.max(...listOfWidths);
-      const newHeight = Math.max(...listOfHeights);
-      setWidthOfAllLinks(newWidth * numOfLinks);
-      setHeightOfLink(newHeight);
     } catch (error) {}
   };
   // on initial load make listeners for resize that will call both func; updateWidthOfContainer & updateSizeOfLinks
   useEffect(() => {
-    window.addEventListener("resize", updateWidthOfContainer);
-    updateWidthOfContainer();
-    window.addEventListener("resize", updateSizeOfLinks);
-    updateSizeOfLinks();
+    if (menuInLine) {
+      window.addEventListener("resize", () => {updateWidthOfContainer(); updateSizeOfLinks()});
+      updateWidthOfContainer();
+      updateSizeOfLinks();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   // if widthOfContainer or widthOfAllLinks change, setCanBeInline to equal value
@@ -183,7 +164,6 @@ const Menu = ({
   all submenu (ul) are generated inside of item (li) after text
   there are three types of onClick interactions (target another page, target id at actual page, dropdown submenu)
   */
-
   return (
     <nav id={`${canBeInline ? "nav-inline" : "nav-dropdown"}`}>
       <div
@@ -224,42 +204,53 @@ const Menu = ({
                 : ""
             }`}
             key={index}
-            onClick={() => {
-              link.sublinksId !== 0
+          >
+            {link.sublinksId === 0 && link.itsScroll === false ? (
+              <Link
+              className={`${
+                canBeInline
+                  ? "inline-item-link-element"
+                  : "dropdown-item-link-element"
+              }`}
+              onClick={() => {handleDisactiveMenu()}}
+              href={link.href}
+              style={{
+                minWidth: "100%",
+                height: `${heightOfLink}px`,
+                left: `${borderSize}`,
+                top: `${
+                  canBeInline
+                    ? "0px"
+                    : `calc(${
+                        heightOfLink * index
+                      }px + ${borderSize} + ${borderSize} * 2 * ${index} + 5px)`
+                }`,
+              }}
+              ></Link>
+            ) : (
+              <span className={`${
+                canBeInline
+                  ? "inline-item-link-element"
+                  : "dropdown-item-link-element"
+              }`} style={{
+                minWidth: "100%",
+                height: `${heightOfLink}px`,
+                left: `${borderSize}`,
+                top: `${
+                  canBeInline
+                    ? "0px"
+                    : `calc(${
+                        heightOfLink * index
+                      }px + ${borderSize} + ${borderSize} * 2 * ${index} + 5px)`
+                }`,
+              }} onClick={() => {link.sublinksId !== 0
                 ? handleSubMenu(link.sublinksId)
-                : (link.itsScroll &&
-                    document
+                : (document
                       .getElementById(`${link.href}`)
                       .scrollIntoView({ behavior: "smooth" })) &
-                  handleDisactiveMenu();
-            }}
-          >
-            {link.sublinksId === 0 && link.itsScroll === false && (
-              <Link
-                className={`${
-                  canBeInline
-                    ? "inline-item-link-element"
-                    : "dropdown-item-link-element"
-                }`}
-                href={link.href}
-                style={{
-                  width: `${
-                    canBeInline
-                      ? listOfLinksWidth[index]
-                      : widthOfAllLinks / numOfLinks
-                  }px`,
-                  minWidth: "100%",
-                  height: `${heightOfLink}px`,
-                  left: `${borderSize}`,
-                  top: `${
-                    canBeInline
-                      ? "0px"
-                      : `calc(${
-                          heightOfLink * index
-                        }px + ${borderSize} + ${borderSize} * 2 * ${index} + 5px)`
-                  }`,
-                }}
-              ></Link>
+                  handleDisactiveMenu();}}>
+
+              </span>
             )}
             <span
               className={`${
@@ -314,15 +305,8 @@ const Menu = ({
                         : "dropdown-item-sublink"
                     }`}
                     key={index}
-                    onClick={() => {
-                      (sublink.itsScroll &&
-                        document
-                          .getElementById(`${sublink.href}`)
-                          .scrollIntoView({ behavior: "smooth" })) &
-                        handleDisactiveMenu();
-                    }}
                   >
-                    {sublink.itsScroll === false && (
+                    {sublink.itsScroll === false ? (
                       <Link
                         className={`${
                           canBeInline
@@ -330,11 +314,26 @@ const Menu = ({
                             : "dropdown-item-sublink-element"
                         }`}
                         href={sublink.href}
+                        onClick={() => {handleDisactiveMenu()}}
                         style={{
                           minWidth: "100%",
                           height: `${heightOfLink}px`,
                         }}
                       ></Link>
+                    ) : (
+                      <span                        className={`${
+                        canBeInline
+                          ? "inline-item-sublink-element"
+                          : "dropdown-item-sublink-element"
+                      }`} style={{
+                        minWidth: "100%",
+                        height: `${heightOfLink}px`,
+                      }} onClick={() => {document
+                        .getElementById(`${sublink.href}`)
+                        .scrollIntoView({ behavior: "smooth" });
+                      handleDisactiveMenu()}}>
+
+                      </span>
                     )}
                     <span
                       className={`${
