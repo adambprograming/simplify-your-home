@@ -19,6 +19,9 @@
       cursor: pointer;
       text-align: center;
       position: relative;
+      .inline-item-text{
+        white-space: nowrap;
+      }
       .inline-item-link-element{
         position: absolute;
         display: block;
@@ -32,6 +35,7 @@
         margin-top: 0.5rem;
         visibility: hidden;
         position: absolute;
+        z-index: 100;
         list-style-type: none;
         right: 0px;
         left: 0px;
@@ -60,6 +64,7 @@
   .menu-dropdown {
     visibility: hidden;
     position: absolute;
+    z-index: 100;
     list-style-type: none;
     padding: 0.5rem 0;
     left: 4.1%;
@@ -71,6 +76,9 @@
       cursor: pointer;
       background-color: var(--secondary-color);
       text-align: center;
+      .dropdown-item-text{
+        white-space: nowrap;
+      }
       .dropdown-item-link-element{
         position: absolute;
         display: block;

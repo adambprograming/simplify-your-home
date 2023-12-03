@@ -6,16 +6,17 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 /*
 INSTRUCTIONS (Use itsScroll to tru only on Onepages - otherwise it will cause problem, bcs on the another page isnt element with that ID)
-  links           json with data
-    content         text of button (if there is need to make content of inline-item wider, because of submenu-item, use ‎ to make space)
-    itsScroll       false(default, link to another page)/true(link to something on page)
-    href            target of button onClick (if itsScroll===true, href must be id of target element)
-    sublinksId      0 for link and 1/2/3 if link used to be for sublinks (first of it must have value of 1, second value of 2 and third value of 3)
-    sublinks        list of sublinks with params same as link (content, itsScroll, href)
-  menuInLine      define if menu can be inline (if there is eneugh space) (default true)
-  fontSize        fontSize in px for mobile (it will be * by multiplier for desktop) (default set to 24px for mobile)
-  fontFamily      fontFamily (could be like var(--font-primary), if fonts are set in variables) (default set to var(--font-primary))
-  borderSize      size of border (default set to 1px)
+  links                   json with data
+    content                 text of button (if there is need to make content of inline-item wider, because of submenu-item, use ‎ to make space)
+    itsScroll               false(default, link to another page)/true(link to something on page)
+    href                    target of button onClick (if itsScroll===true, href must be id of target element)
+    sublinksId              0 for link and 1/2/3 if link used to be for sublinks (first of it must have value of 1, second value of 2 and third value of 3)
+    sublinks                list of sublinks with params same as link (content, itsScroll, href)
+  menuInLine              define if menu can be inline (if there is eneugh space) (default true)
+  fontSize                fontSize in px for mobile (it will be * by multiplier for desktop) (default set to 24px for mobile)
+  fontFamily              fontFamily (could be like var(--font-primary), if fonts are set in variables) (default set to var(--font-primary))
+  borderSize              size of border (default set to 1px)
+  paddingOfEachLinkBlock  defines padding of each link block (default set to "10px 10px 5px 10px")
 */
 const Menu = ({
   links,

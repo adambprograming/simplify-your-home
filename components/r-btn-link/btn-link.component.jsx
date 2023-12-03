@@ -1,6 +1,8 @@
 "use client";
 // Styles
 import "./btn-link.styles.scss";
+// React Functions
+import Link from "next/link";
 
 /*
 INSTRUCTIONS 
@@ -12,9 +14,10 @@ INSTRUCTIONS
   borderRadius  borderRadius (default set to 0px)
   borderSize    size of border (default set to 1px)
   opacity       opacity of button background (default set to 1.0)
+  paddingOfLink padding will be aplied if fontSize is not defined
 */
 
-const Btn = ({
+const BtnLink = ({
   content,
   itsScroll = false,
   href,
@@ -23,38 +26,41 @@ const Btn = ({
   borderRadius = "0px",
   borderSize = "1px",
   opacity = 1,
+  paddingOfLink = "10px 20px 5px 20px",
 }) => {
   return (
     <button
-      className="r-btn"
+      className="btn-link"
       style={{
-        padding: `calc(${fontSize} * 0.3 + 2.5px) calc(${fontSize} + 5px)`,
         borderRadius: `${borderRadius}`,
         border: `${borderSize} solid var(--black-100)`,
+        ...(typeof fontSize === 'undefined' ? {padding: paddingOfLink,} : {padding: `calc(${fontSize} * 0.3 + 2.5px) calc(${fontSize} + 5px)`,}),
       }}
       onClick={() => {
-        itsScroll
-          ? document
-              .getElementById(`#${href}`)
-              .scrollIntoView({ behavior: "smooth" })
-          : (window.location.href = `${href}`);
+        itsScroll &&
+          document
+            .getElementById(`${href}`)
+            .scrollIntoView({ behavior: "smooth" });
       }}
     >
       <span
-        className="r-btn-bg"
-        style={{ opacity: opacity, borderRadius: `calc(${borderRadius} - 0.5 * ${borderRadius})` }}
-      ></span>
-      <span
-        className="r-btn-text"
+        className="btn-link-bg"
         style={{
-          fontFamily: fontFamily,
-          fontSize: `calc(${fontSize} * var(--multiplier))`,
+          opacity: opacity,
+        }}
+      ></span>
+      {itsScroll === false && <Link className="btn-link-link" href={href}></Link>}
+      <h4
+        className="btn-link-text"
+        style={{
+          ...(typeof fontSize !== 'undefined' && {fontSize: `calc(${fontSize} * var(--multiplier))`,}),
+          ...(typeof fontFamily !== 'undefined' && {fontFamily: fontFamily,}),
         }}
       >
         {content}
-      </span>
+      </h4>
     </button>
   );
 };
 
-export default Btn;
+export default BtnLink;
