@@ -12,7 +12,7 @@ import Link from "next/link"
 import Menu from "../r-menu/menu.component";
 
 const Header = () => {
-  const menuDropDown = [
+  const menu = [
     {
       "content": "Home",
       "itsScroll": false,
@@ -55,7 +55,7 @@ const Header = () => {
   return (
     <header id="article-header">
       <div className="container-left">
-        <Menu links={menuDropDown} menuInLine={true} fontSize="24px" fontFamily="var(--font-primary), sans-serif" borderSize="1px" />
+        <Menu links={menu} menuInLine={true} fontSize="24px" fontFamily="var(--font-primary), sans-serif" borderSize="1px" />
       </div>
       <div className="container-logo">
         <Link href='/' ><Image className="logo" src={Logo} alt="logo" /></Link>

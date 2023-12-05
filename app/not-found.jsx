@@ -1,5 +1,5 @@
 // Componenets
-import Btn from "@/components/r-btn-link/btn-link.component";
+import BtnLink from "@/components/r-btn-link/btn-link.component";
 
 export default function NotFound() {
   return (
@@ -14,7 +14,7 @@ export default function NotFound() {
     >
       <h2>Not Found</h2>
       <p style={{ marginBottom: 20 }}>Could not find requested content.</p>
-      <Btn
+      <BtnLink
         content="Return Home"
         itsScroll={false}
         href="/"
@@ -23,7 +23,7 @@ export default function NotFound() {
         borderRadius="20px"
         borderSize="1.5px"
         opacity={1}
-      ></Btn>
+      ></BtnLink>
     </div>
   );
 }

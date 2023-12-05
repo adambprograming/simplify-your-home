@@ -1,9 +1,9 @@
-.r-btn{
+.btn-link{
     cursor: pointer;
     overflow: hidden;
     position: relative;
     background-color: transparent;
-    .r-btn-bg{
+    .btn-link-bg{
         background-color: var(--primary-color);
         display: block;
         position: absolute;
@@ -12,7 +12,16 @@
         left: 0;
         top: 0;
     }
-    .r-btn-text{
+    .btn-link-link{
+        display: block;
+        position: absolute;
+        min-height: 100%;
+        min-width: 100%;
+        z-index: 1;
+        left: 0;
+        top: 0;
+    }
+    .btn-link-text{
         color: var(--text-color);
         position: relative;
     }
